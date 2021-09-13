@@ -24,6 +24,7 @@ export function validateServicesBeforeNormalization(
 
 const preCompositionValidators = Object.values(preCompositionRules);
 
+// 在整合之前，校验服务
 export const validateServicesBeforeComposition = (
   services: ServiceDefinition[],
 ) => {

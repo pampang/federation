@@ -134,6 +134,11 @@ type ValueTypes = Set<string>;
  * - build up typeToServiceMap
  * - push individual definitions onto either typeDefinitionsMap or typeExtensionsMap
  */
+// FIXME: 合并 typeDefs
+// type definition，类型定义
+// type extension，类型拓展
+// directive definition
+// type to service
 export function buildMapsFromServiceList(serviceList: ServiceDefinition[]) {
   const typeDefinitionsMap: TypeDefinitionsMap = Object.create(null);
   const typeExtensionsMap: TypeExtensionsMap = Object.create(null);
@@ -144,12 +149,17 @@ export function buildMapsFromServiceList(serviceList: ServiceDefinition[]) {
   const valueTypes: ValueTypes = new Set();
   const directiveMetadata = new DirectiveMetadata(serviceList);
 
+  // 遍历 serviceList
   for (const { typeDefs, name: serviceName } of serviceList) {
     // Build a new SDL with @external fields removed, as well as information about
     // the fields that were removed.
+    // FIXME: 去掉 @external 字段
+
+    // 所以 typeDefs 输入时是有 @external，后面就去掉了。
+    // 把 external 的 node 去掉了
     const {
       typeDefsWithoutExternalFields,
-      strippedFields,
+      strippedFields, // external fields 提取到这里了
     } = stripExternalFieldsFromTypeDefs(typeDefs, serviceName);
 
     externalFields.push(...strippedFields);
@@ -158,10 +168,13 @@ export function buildMapsFromServiceList(serviceList: ServiceDefinition[]) {
     // gateway, but rather the services on which the fields live which serve
     // those types.  In other words, its up to an implementing service to
     // act on such directives, not the gateway.
+    // FIXME: 抽离 apollo gateway 的特殊指令。定义在 apolloTypeSystemDirectives
+    // https://www.apollographql.com/docs/federation/federation-spec/#federation-schema-specification
     const typeDefsWithoutTypeSystemDirectives =
       stripTypeSystemDirectivesFromTypeDefs(typeDefsWithoutExternalFields);
 
     for (const definition of typeDefsWithoutTypeSystemDirectives.definitions) {
+      // 处理 keyDirectivesMap
       if (
         definition.kind === Kind.OBJECT_TYPE_DEFINITION ||
         definition.kind === Kind.OBJECT_TYPE_EXTENSION
@@ -344,6 +357,8 @@ export function buildMapsFromServiceList(serviceList: ServiceDefinition[]) {
   };
 }
 
+// 构建 schema 对象
+// schema 对象的结构是什么？长什么样？是怎么解析出来的？
 export function buildSchemaFromDefinitionsAndExtensions({
   typeDefinitionsMap,
   typeExtensionsMap,
@@ -401,7 +416,7 @@ export function buildSchemaFromDefinitionsAndExtensions({
 
   function nodeHasInterfaces(node: any): node is HasInterfaces {
     return 'interfaces' in node;
-  }
+  }g
 
   // Extend the blank schema with the base type definitions (as an AST node)
   const definitionsDocument: DocumentNode = {
@@ -477,6 +492,7 @@ export function buildSchemaFromDefinitionsAndExtensions({
  * Using the various information we've collected about the schema, augment the
  * `schema` itself with `federation` metadata to the types and fields
  */
+// 把从 schema 中关于 federation 的部分增强到 schema
 export function addFederationMetadataToSchemaNodes({
   schema,
   typeToServiceMap,
@@ -649,10 +665,11 @@ export function composeServices(services: ServiceDefinition[]): CompositionResul
     typeExtensionsMap,
     directiveDefinitionsMap,
     externalFields,
-    keyDirectivesMap,
+    keyDirectivesMap, // 为什么这里是 { Astronaut: { ... } }
     valueTypes,
     directiveMetadata,
   } = buildMapsFromServiceList(services);
+  // services 中有 typeDef，在这里整合成 typeDefinitionsMap
 
   let { schema, errors } = buildSchemaFromDefinitionsAndExtensions({
     typeDefinitionsMap,

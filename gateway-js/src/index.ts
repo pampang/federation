@@ -559,6 +559,7 @@ export class ApolloGateway implements GraphQLService {
     // In the case that it throws, the gateway will:
     //   * on initial load, throw the error
     //   * on update, log the error and don't update
+    // 这里也是 graphql 的工具，传入 string，返回
     const parsedSupergraphSdl = parse(result.supergraphSdl);
 
     const previousSchema = this.schema;
@@ -726,7 +727,7 @@ export class ApolloGateway implements GraphQLService {
 
     if (compositionHasErrors(compositionResult)) {
       const { errors } = compositionResult;
-      if (this.experimental_didFailComposition) {
+    if (this.experimental_didFailComposition) {
         this.experimental_didFailComposition({
           errors,
           serviceList,

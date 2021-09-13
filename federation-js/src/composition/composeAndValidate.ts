@@ -21,6 +21,7 @@ export function composeAndValidate(
   // generate errors or warnings of the individual services
   errors.push(...validateServicesBeforeComposition(normalizedServiceList));
 
+  // FIXME: 在这里整合 services 的 graphql，最终生成。
   // generate a schema and any errors or warnings
   const compositionResult = composeServices(normalizedServiceList);
 
