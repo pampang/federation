@@ -116,6 +116,7 @@ export function findSelectionSetOnNode(
             argument => argument.name.value === 'fields')?.value;
 }
 
+// 去掉 @external
 export function stripExternalFieldsFromTypeDefs(
   typeDefs: DocumentNode,
   serviceName: string,
@@ -125,6 +126,7 @@ export function stripExternalFieldsFromTypeDefs(
 } {
   const strippedFields: ExternalFieldDefinition[] = [];
 
+  // graphql 提供的 visitor
   const typeDefsWithoutExternalFields = visit(typeDefs, {
     ObjectTypeExtension: removeExternalFieldsFromExtensionVisitor(
       strippedFields,

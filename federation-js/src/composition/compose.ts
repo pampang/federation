@@ -659,6 +659,8 @@ export function addFederationMetadataToSchemaNodes({
 }
 
 export function composeServices(services: ServiceDefinition[]): CompositionResult {
+  // FIXME: 解析 schema，把用户输入标准化
+  // services 中分离 federation 的相关字段，存放在各个 map 中
   const {
     typeToServiceMap,
     typeDefinitionsMap,
@@ -669,8 +671,8 @@ export function composeServices(services: ServiceDefinition[]): CompositionResul
     valueTypes,
     directiveMetadata,
   } = buildMapsFromServiceList(services);
-  // services 中有 typeDef，在这里整合成 typeDefinitionsMap
 
+  // FIXME: 整合 schema，整合到真正的 schema 中
   let { schema, errors } = buildSchemaFromDefinitionsAndExtensions({
     typeDefinitionsMap,
     typeExtensionsMap,
@@ -681,6 +683,7 @@ export function composeServices(services: ServiceDefinition[]): CompositionResul
 
   // TODO: We should fix this to take non-default operation root types in
   // implementing services into account.
+  // FIXME: 拓展 schema，将 root 类型（query/mutation/subscription）提出来
   schema = new GraphQLSchema({
     ...schema.toConfig(),
     ...mapValues(defaultRootOperationNameLookup, typeName =>
@@ -710,6 +713,7 @@ export function composeServices(services: ServiceDefinition[]): CompositionResul
 
   schema = lexicographicSortSchema(schema);
 
+  // 把 federation 元信息塞进 schema 节点
   addFederationMetadataToSchemaNodes({
     schema,
     typeToServiceMap,

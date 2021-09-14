@@ -10,6 +10,7 @@ lerna exec --parallel yarn link
 
 // cd 到目标项目，然后执行 yarn link
 yarn link @apollo/gateway
+yarn link @apollo/federation
 ```
 
 # 配置文件
